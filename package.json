@@ -1,0 +1,23 @@
+{
+  "name": "ystudio-analytics-agent",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/qtvhao/ystudio-analytics-agent#readme",
+  "bugs": {
+    "url": "https://github.com/qtvhao/ystudio-analytics-agent/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qtvhao/ystudio-analytics-agent.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "puppeteer": "^24.4.0"
+  }
+}
