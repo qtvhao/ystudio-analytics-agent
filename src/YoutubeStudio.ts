@@ -56,7 +56,14 @@ export class YoutubeStudio {
         orderByColumn?: string;
         orderDirection?: string;
     }): Promise<void> {
-        const channelId = this.navigator.getChannelId();
+        let channelId = this.navigator.getChannelId();
+        const startTime = Date.now();
+
+        while (!channelId && Date.now() - startTime < 30000) {
+            this.logDebug('Channel ID not available yet. Retrying...');
+            await new Promise((res) => setTimeout(res, 1000));
+            channelId = this.navigator.getChannelId();
+        }
 
         if (!channelId) {
             throw new Error('Channel ID is required to navigate to Impressions by Content page. Make sure to call start() first.');
