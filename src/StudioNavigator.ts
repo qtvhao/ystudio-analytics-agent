@@ -2,6 +2,13 @@ import { BrowserConnector } from './BrowserConnector.js';
 import { StudioUrlBuilder } from './StudioUrlBuilder.js';
 import { Page } from 'puppeteer';
 
+type NavigationOptions = {
+    timePeriod?: string;
+    granularity?: string;
+    orderByColumn?: string;
+    orderDirection?: string;
+};
+
 export class StudioNavigator {
     private connector: BrowserConnector;
     private page: Page | null = null;
@@ -50,12 +57,7 @@ export class StudioNavigator {
 
     public async navigateToImpressionsByContent(
         channelId: string,
-        options?: {
-            timePeriod?: string;
-            granularity?: string;
-            orderByColumn?: string;
-            orderDirection?: string;
-        }
+        options?: NavigationOptions
     ): Promise<void> {
         if (!this.page) {
             throw new Error('Page is not initialized.');

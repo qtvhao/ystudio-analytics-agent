@@ -7,6 +7,13 @@ interface ImageTag {
     src: string;
 }
 
+interface ImpressionPageOptions {
+    timePeriod?: string;
+    granularity?: string;
+    orderByColumn?: string;
+    orderDirection?: string;
+}
+
 export class YoutubeStudio {
     private navigator: StudioNavigator;
     private debug: boolean;
@@ -50,12 +57,7 @@ export class YoutubeStudio {
     /**
      * Navigates to the Impressions by Content page for the current channel.
      */
-    public async navigateToImpressionsByContentPage(options?: {
-        timePeriod?: string;
-        granularity?: string;
-        orderByColumn?: string;
-        orderDirection?: string;
-    }): Promise<void> {
+    public async navigateToImpressionsByContentPage(options?: ImpressionPageOptions): Promise<void> {
         let channelId = this.navigator.getChannelId();
         const startTime = Date.now();
 
@@ -111,12 +113,7 @@ export class YoutubeStudio {
      * Combines navigation, fetching image tags with alt and src, and saving to a file.
      */
     public async fetchAndSaveImpressionsByContentPage(
-        options?: {
-            timePeriod?: string;
-            granularity?: string;
-            orderByColumn?: string;
-            orderDirection?: string;
-        },
+        options?: ImpressionPageOptions,
         filePath: string = 'impressions_by_content_imgs.json'
     ): Promise<ImageTag[]> {
         await this.navigateToImpressionsByContentPage(options);

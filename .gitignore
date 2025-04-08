@@ -1,3 +1,4 @@
 browser/
 node_modules/
 .yarn/
+dist/

@@ -1,3 +1,17 @@
+interface AnalyticsUrlOptionsBase {
+    channelId: string;
+    timePeriod?: string;
+    granularity?: string;
+    orderByColumn?: string;
+    orderDirection?: string;
+}
+
+interface AnalyticsUrlBuildOptions extends AnalyticsUrlOptionsBase {
+    orderByColumn: string;
+    metric: string;
+    metricsList: string[];
+}
+
 export class StudioUrlBuilder {
     private debug: boolean;
 
@@ -11,15 +25,7 @@ export class StudioUrlBuilder {
         }
     }
     
-    private buildAnalyticsUrl(options: {
-        channelId: string;
-        timePeriod?: string;
-        granularity?: string;
-        orderByColumn: string;
-        orderDirection?: string;
-        metric: string;
-        metricsList: string[];
-    }): string {
+    private buildAnalyticsUrl(options: AnalyticsUrlBuildOptions): string {
         const {
             channelId,
             timePeriod = 'week',
@@ -58,13 +64,7 @@ export class StudioUrlBuilder {
         return finalUrl;
     }
 
-    public buildWatchTimeByContentUrl(options: {
-        channelId: string;
-        timePeriod?: string;
-        granularity?: string;
-        orderByColumn?: string;
-        orderDirection?: string;
-    }): string {
+    public buildWatchTimeByContentUrl(options: AnalyticsUrlOptionsBase): string {
         return this.buildAnalyticsUrl({
             ...options,
             orderByColumn: options.orderByColumn || 'EXTERNAL_WATCH_TIME',
@@ -80,13 +80,7 @@ export class StudioUrlBuilder {
         });
     }
 
-    public buildImpressionsByContentUrl(options: {
-        channelId: string;
-        timePeriod?: string;
-        granularity?: string;
-        orderByColumn?: string;
-        orderDirection?: string;
-    }): string {
+    public buildImpressionsByContentUrl(options: AnalyticsUrlOptionsBase): string {
         return this.buildAnalyticsUrl({
             ...options,
             orderByColumn: options.orderByColumn || 'VIDEO_THUMBNAIL_IMPRESSIONS',
