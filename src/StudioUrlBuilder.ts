@@ -63,6 +63,21 @@ export class StudioUrlBuilder {
 
         return finalUrl;
     }
+    public buildSubscribersByContentUrl(options: AnalyticsUrlOptionsBase): string {
+        return this.buildAnalyticsUrl({
+            ...options,
+            orderByColumn: options.orderByColumn || 'SUBSCRIBERS_NET_CHANGE',
+            metric: 'SUBSCRIBERS_NET_CHANGE',
+            metricsList: [
+                'EXTERNAL_VIEWS',
+                'EXTERNAL_WATCH_TIME',
+                'SUBSCRIBERS_NET_CHANGE',
+                'TOTAL_ESTIMATED_EARNINGS',
+                'VIDEO_THUMBNAIL_IMPRESSIONS',
+                'VIDEO_THUMBNAIL_IMPRESSIONS_VTR'
+            ]
+        });
+    }
 
     public buildWatchTimeByContentUrl(options: AnalyticsUrlOptionsBase): string {
         return this.buildAnalyticsUrl({

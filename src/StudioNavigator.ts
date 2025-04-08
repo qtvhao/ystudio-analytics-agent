@@ -101,6 +101,13 @@ export class StudioNavigator {
         await this.navigateToContentPage(channelId, options, this.urlBuilder.buildWatchTimeByContentUrl.bind(this.urlBuilder));
     }
 
+    public async navigateToSubscribersByContent(
+        channelId: string,
+        options?: NavigationOptions
+    ): Promise<void> {
+        await this.navigateToContentPage(channelId, options, this.urlBuilder.buildSubscribersByContentUrl.bind(this.urlBuilder));
+    }
+
     /**
      * Extracts and stores the channel ID from the current page URL.
      */

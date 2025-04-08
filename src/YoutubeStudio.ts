@@ -30,7 +30,7 @@ export class YoutubeStudio {
     }
 
     private async navigateToContentPage(
-        pageType: 'impressions' | 'watchTime',
+        pageType: 'impressions' | 'watchTime' | 'subscribers',
         options?: ImpressionPageOptions
     ): Promise<void> {
         let channelId = this.navigator.getChannelId();
@@ -50,8 +50,10 @@ export class YoutubeStudio {
 
         if (pageType === 'impressions') {
             await this.navigator.navigateToImpressionsByContent(channelId, options);
-        } else {
+        } else if (pageType === 'watchTime') {
             await this.navigator.navigateToWatchTimeByContent(channelId, options);
+        } else if (pageType === 'subscribers') {
+            await this.navigator.navigateToSubscribersByContent(channelId, options);
         }
     }
 
@@ -95,6 +97,13 @@ export class YoutubeStudio {
     }
 
     /**
+     * Navigates to the Subscribers by Content page for the current channel.
+     */
+    public async navigateToSubscribersByContentPage(options?: ImpressionPageOptions): Promise<void> {
+        return this.navigateToContentPage('subscribers', options);
+    }
+
+    /**
      * Retrieves the <img> tags' alt and src attributes from the Impressions by Content page.
      * Filters for <img> tags whose alt attribute starts with "Video thumbnail:".
      */
@@ -128,20 +137,22 @@ export class YoutubeStudio {
     }
 
     private async fetchAndSaveContentPage(
-        pageType: 'impressions' | 'watchTime',
+        pageType: 'impressions' | 'watchTime' | 'subscribers',
         options: ImpressionPageOptions | undefined,
         filePath: string
     ): Promise<ImageTag[]> {
         if (pageType === 'impressions') {
             await this.navigateToImpressionsByContentPage(options);
-        } else {
+        } else if (pageType === 'watchTime') {
             await this.navigateToWatchTimeByContentPage(options);
+        } else if (pageType === 'subscribers') {
+            await this.navigateToSubscribersByContentPage(options);
         }
 
         const imgTags: ImageTag[] = await this.fetchImpressionContentImageTags();
         await this.saveHTMLToFile(JSON.stringify(imgTags, null, 2), filePath);
 
-        console.log(`Fetched and saved <img> tags from ${pageType === 'impressions' ? 'Impressions' : 'Watch Time'} by Content page.`);
+        console.log(`Fetched and saved <img> tags from ${pageType.charAt(0).toUpperCase() + pageType.slice(1)} by Content page.`);
         return imgTags;
     }
 
@@ -163,6 +174,16 @@ export class YoutubeStudio {
         filePath: string = 'watch_time_by_content_imgs.json'
     ): Promise<ImageTag[]> {
         return this.fetchAndSaveContentPage('watchTime', options, filePath);
+    }
+
+    /**
+     * Combines navigation to the Subscribers by Content page, fetching image tags with alt and src, and saving to a file.
+     */
+    public async fetchAndSaveSubscribersByContentPage(
+        options?: ImpressionPageOptions,
+        filePath: string = 'subscribers_by_content_imgs.json'
+    ): Promise<ImageTag[]> {
+        return this.fetchAndSaveContentPage('subscribers', options, filePath);
     }
 
     /**
