@@ -29,6 +29,32 @@ export class YoutubeStudio {
         }
     }
 
+    private async navigateToContentPage(
+        pageType: 'impressions' | 'watchTime',
+        options?: ImpressionPageOptions
+    ): Promise<void> {
+        let channelId = this.navigator.getChannelId();
+        const startTime = Date.now();
+
+        while (!channelId && Date.now() - startTime < 30000) {
+            this.logDebug('Channel ID not available yet. Retrying...');
+            await new Promise((res) => setTimeout(res, 1000));
+            channelId = this.navigator.getChannelId();
+        }
+
+        if (!channelId) {
+            throw new Error(`Channel ID is required to navigate to ${pageType} page. Make sure to call start() first.`);
+        }
+
+        this.logDebug(`Navigating to ${pageType} page with channelId: ${channelId}`);
+
+        if (pageType === 'impressions') {
+            await this.navigator.navigateToImpressionsByContent(channelId, options);
+        } else {
+            await this.navigator.navigateToWatchTimeByContent(channelId, options);
+        }
+    }
+
     /**
      * Initializes the navigator and retrieves the channelId.
      */
@@ -58,22 +84,14 @@ export class YoutubeStudio {
      * Navigates to the Impressions by Content page for the current channel.
      */
     public async navigateToImpressionsByContentPage(options?: ImpressionPageOptions): Promise<void> {
-        let channelId = this.navigator.getChannelId();
-        const startTime = Date.now();
+        return this.navigateToContentPage('impressions', options);
+    }
 
-        while (!channelId && Date.now() - startTime < 30000) {
-            this.logDebug('Channel ID not available yet. Retrying...');
-            await new Promise((res) => setTimeout(res, 1000));
-            channelId = this.navigator.getChannelId();
-        }
-
-        if (!channelId) {
-            throw new Error('Channel ID is required to navigate to Impressions by Content page. Make sure to call start() first.');
-        }
-
-        this.logDebug(`Navigating to Impressions by Content page with channelId: ${channelId}`);
-
-        await this.navigator.navigateToImpressionsByContent(channelId, options);
+    /**
+     * Navigates to the Watch Time by Content page for the current channel.
+     */
+    public async navigateToWatchTimeByContentPage(options?: ImpressionPageOptions): Promise<void> {
+        return this.navigateToContentPage('watchTime', options);
     }
 
     /**
@@ -109,6 +127,24 @@ export class YoutubeStudio {
         console.log(`Content saved to ${filePath}`);
     }
 
+    private async fetchAndSaveContentPage(
+        pageType: 'impressions' | 'watchTime',
+        options: ImpressionPageOptions | undefined,
+        filePath: string
+    ): Promise<ImageTag[]> {
+        if (pageType === 'impressions') {
+            await this.navigateToImpressionsByContentPage(options);
+        } else {
+            await this.navigateToWatchTimeByContentPage(options);
+        }
+
+        const imgTags: ImageTag[] = await this.fetchImpressionContentImageTags();
+        await this.saveHTMLToFile(JSON.stringify(imgTags, null, 2), filePath);
+
+        console.log(`Fetched and saved <img> tags from ${pageType === 'impressions' ? 'Impressions' : 'Watch Time'} by Content page.`);
+        return imgTags;
+    }
+
     /**
      * Combines navigation, fetching image tags with alt and src, and saving to a file.
      */
@@ -116,15 +152,17 @@ export class YoutubeStudio {
         options?: ImpressionPageOptions,
         filePath: string = 'impressions_by_content_imgs.json'
     ): Promise<ImageTag[]> {
-        await this.navigateToImpressionsByContentPage(options);
+        return this.fetchAndSaveContentPage('impressions', options, filePath);
+    }
 
-        const imgTags: ImageTag[] = await this.fetchImpressionContentImageTags();
-
-        await this.saveHTMLToFile(JSON.stringify(imgTags, null, 2), filePath);
-
-        console.log('Fetched and saved <img> tags from Impressions by Content page.');
-
-        return imgTags;
+    /**
+     * Combines navigation to the Watch Time by Content page, fetching image tags with alt and src, and saving to a file.
+     */
+    public async fetchAndSaveWatchTimeByContentPage(
+        options?: ImpressionPageOptions,
+        filePath: string = 'watch_time_by_content_imgs.json'
+    ): Promise<ImageTag[]> {
+        return this.fetchAndSaveContentPage('watchTime', options, filePath);
     }
 
     /**

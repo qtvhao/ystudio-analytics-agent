@@ -55,17 +55,24 @@ export class StudioNavigator {
         this.logDebug(`Navigated to ${studioUrl}`);
     }
 
-    public async navigateToImpressionsByContent(
+    private async navigateToContentPage(
         channelId: string,
-        options?: NavigationOptions
+        options: NavigationOptions | undefined,
+        builderFunction: (params: {
+            channelId: string;
+            timePeriod?: string;
+            granularity?: string;
+            orderByColumn?: string;
+            orderDirection?: string;
+        }) => string
     ): Promise<void> {
         if (!this.page) {
             throw new Error('Page is not initialized.');
         }
 
-        this.logDebug(`Navigating to Impressions by Content for channelId: ${channelId}`);
+        this.logDebug(`Navigating for channelId: ${channelId}`);
 
-        const impressionsUrl = this.urlBuilder.buildImpressionsByContentUrl({
+        const targetUrl = builderFunction({
             channelId,
             timePeriod: options?.timePeriod,
             granularity: options?.granularity,
@@ -73,11 +80,25 @@ export class StudioNavigator {
             orderDirection: options?.orderDirection
         });
 
-        this.logDebug(`Navigating to URL: ${impressionsUrl}`);
+        this.logDebug(`Navigating to URL: ${targetUrl}`);
 
-        await this.connector.navigate(impressionsUrl);
+        await this.connector.navigate(targetUrl);
 
-        this.logDebug('Successfully navigated to Impressions by Content page.');
+        this.logDebug('Successfully navigated to content page.');
+    }
+
+    public async navigateToImpressionsByContent(
+        channelId: string,
+        options?: NavigationOptions
+    ): Promise<void> {
+        await this.navigateToContentPage(channelId, options, this.urlBuilder.buildImpressionsByContentUrl.bind(this.urlBuilder));
+    }
+
+    public async navigateToWatchTimeByContent(
+        channelId: string,
+        options?: NavigationOptions
+    ): Promise<void> {
+        await this.navigateToContentPage(channelId, options, this.urlBuilder.buildWatchTimeByContentUrl.bind(this.urlBuilder));
     }
 
     /**
