@@ -116,6 +116,7 @@ export class StudioNavigator {
             throw new Error('Page is not initialized.');
         }
 
+        await new Promise(r => setTimeout(r, 10_000))
         const currentUrl = this.page.url();
         this.logDebug(`Current page URL for channelId extraction: ${currentUrl}`);
 
