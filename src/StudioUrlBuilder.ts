@@ -28,7 +28,7 @@ export class StudioUrlBuilder {
     private buildAnalyticsUrl(options: AnalyticsUrlBuildOptions): string {
         const {
             channelId,
-            timePeriod = 'week',
+            timePeriod = '4_weeks',
             granularity = 'DAY',
             orderByColumn,
             orderDirection = 'ANALYTICS_ORDER_DIRECTION_DESC',
