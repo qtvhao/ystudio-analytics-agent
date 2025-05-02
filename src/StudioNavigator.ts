@@ -54,7 +54,7 @@ export class StudioNavigator {
         while(true) {
             await new Promise(r => setTimeout(r, 1000))
             const currentUrl = this.page?.url() || '';
-            if (currentUrl.includes('studio.youtube.com')) {
+            if ('studio.youtube.com' === (new URL(currentUrl)).hostname) {
                 this.logDebug(`Confirmed domain: ${currentUrl}`);
                 break;
             } else {
