@@ -51,6 +51,16 @@ export class StudioNavigator {
     public async navigateToStudio(): Promise<void> {
         const studioUrl = 'https://studio.youtube.com/';
         await this.connector.navigate(studioUrl);
+        while(true) {
+            await new Promise(r => setTimeout(r, 1000))
+            const currentUrl = this.page?.url() || '';
+            if (currentUrl.includes('studio.youtube.com')) {
+                this.logDebug(`Confirmed domain: ${currentUrl}`);
+                break;
+            } else {
+                this.logDebug(`Still on incorrect domain: ${currentUrl}`);
+            }
+        }
 
         this.logDebug(`Navigated to ${studioUrl}`);
     }
