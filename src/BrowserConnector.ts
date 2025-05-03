@@ -36,18 +36,25 @@ export class BrowserConnector {
         }
     }
 
-    public async navigate(url: string, waitUntil: 'load' | 'domcontentloaded' | 'networkidle0' | 'networkidle2' = 'networkidle2'): Promise<void> {
+    public async navigate(url: string, waitUntil: 'load' | 'domcontentloaded' | 'networkidle0' | 'networkidle2' = 'networkidle2', attempts: number = 3): Promise<void> {
         if (!this.page) {
             throw new Error('[BrowserConnector] Page is not initialized. Call connect() first.');
         }
 
-        try {
-            this.logDebug(`Navigating to: ${url}`);
-            await this.page.goto(url, { waitUntil });
-            console.log(`[BrowserConnector] Navigated to ${url}`);
-        } catch (error) {
-            console.error(`[BrowserConnector] Failed to navigate to ${url}:`, error);
-            throw error;
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            try {
+                this.logDebug(`Attempt ${attempt} to navigate to: ${url}`);
+                await this.page.goto(url, { waitUntil });
+                console.log(`[BrowserConnector] Navigated to ${url}`);
+                return;
+            } catch (error) {
+                this.logDebug(`[BrowserConnector] Attempt ${attempt} failed to navigate to ${url}: ${error}`);
+                if (attempt === attempts) {
+                    console.error(`[BrowserConnector] Failed to navigate to ${url} after ${attempts} attempts:`, error);
+                    throw error;
+                }
+                await new Promise(resolve => setTimeout(resolve, 15000));
+            }
         }
     }
 
