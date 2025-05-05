@@ -19,6 +19,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
     "puppeteer": "^24.4.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1"
   }
 }
