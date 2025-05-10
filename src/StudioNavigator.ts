@@ -206,11 +206,12 @@ export class StudioNavigator {
         await this.page.waitForFunction(
             (sel) => {
                 const el = document.querySelector(sel);
-                return el ? el.getBoundingClientRect().width > 600 : false;
+                return el ? el.getBoundingClientRect().width > 1200 : false;
             },
             {},
             selector
         );
+        await new Promise(r => setTimeout(r, 1e3))
 
         this.logDebug(`Taking screenshot of element: ${selector}`);
         const screenshotBuffer = await elementHandle.screenshot({ type: 'png' }) as Buffer;

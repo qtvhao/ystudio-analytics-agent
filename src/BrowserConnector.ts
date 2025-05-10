@@ -38,7 +38,7 @@ export class BrowserConnector {
 
             const pages = await this.browser.pages();
             this.page = pages.length ? pages[0] : await this.browser.newPage();
-            await this.page.setViewport({ width: 2000, height: 4000 });
+            await this.page.setViewport({ width: 1450, height: 4000 });
 
             console.log('[BrowserConnector] Connected to browser.');
             this.logDebug(`Total open pages: ${pages.length}`);
