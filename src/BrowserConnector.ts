@@ -33,11 +33,12 @@ export class BrowserConnector {
             this.logDebug(`Connecting to browser at ${browserURL}...`);
             this.browser = await puppeteer.connect({
                 browserURL,
-                defaultViewport: null,
+                defaultViewport: null
             });
 
             const pages = await this.browser.pages();
             this.page = pages.length ? pages[0] : await this.browser.newPage();
+            await this.page.setViewport({ width: 2000, height: 4000 });
 
             console.log('[BrowserConnector] Connected to browser.');
             this.logDebug(`Total open pages: ${pages.length}`);
@@ -147,7 +148,8 @@ export class BrowserConnector {
             '--no-first-run',
             '--disable-features=PrivacySandboxSettings4',
             '--no-zygote',
-            '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15'
+            '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15',
+            '--window-size=4000,4000'
         ];
 
         this.logDebug(`Launching Chrome at ${chromePath} with args: ${args.join(' ')}`);

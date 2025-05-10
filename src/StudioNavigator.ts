@@ -202,6 +202,16 @@ export class StudioNavigator {
             throw new Error(`No element found for selector: ${selector}`);
         }
 
+        await this.page.bringToFront();
+        await this.page.waitForFunction(
+            (sel) => {
+                const el = document.querySelector(sel);
+                return el ? el.getBoundingClientRect().width > 600 : false;
+            },
+            {},
+            selector
+        );
+
         this.logDebug(`Taking screenshot of element: ${selector}`);
         const screenshotBuffer = await elementHandle.screenshot({ type: 'png' }) as Buffer;
         return screenshotBuffer;
