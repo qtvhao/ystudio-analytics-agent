@@ -1,11 +1,12 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { YoutubeStudio } from './YoutubeStudio.js';
+import { StudioManager } from './StudioManager.js';
 
 export class YoutubeStudioService {
     private app = express();
     private port: number;
-    private studioMap: Map<string, YoutubeStudio> = new Map();
+    private studioManager = new StudioManager();
 
     constructor(port: number = 3000) {
         this.port = port;
@@ -30,9 +31,7 @@ export class YoutubeStudioService {
             res.status(400).json({error: 'channel_id is required'});
             return false;
         }
-        if (!this.studioMap.has(channel_id)) {
-            this.studioMap.set(channel_id, new YoutubeStudio(channel_id, true));
-        }
+        this.studioManager.getStudio(channel_id);
         return true;
     }
 
@@ -40,7 +39,7 @@ export class YoutubeStudioService {
         try {
             if (!this.resolveChannelId(req, res)) return;
             const { options, filePath } = req.body;
-            const studio = this.studioMap.get(req.body.channel_id)!;
+            const studio = this.studioManager.getStudio(req.body.channel_id);
             const result = await studio.fetchAndSaveImpressionsByContentPage(options, filePath);
             res.json(result);
         } catch (err) {
@@ -53,7 +52,7 @@ export class YoutubeStudioService {
         try {
             if (!this.resolveChannelId(req, res)) return;
             const { options, filePath } = req.body;
-            const studio = this.studioMap.get(req.body.channel_id)!;
+            const studio = this.studioManager.getStudio(req.body.channel_id);
             const result = await studio.fetchAndSaveWatchTimeByContentPage(options, filePath);
             res.json(result);
         } catch (err) {
@@ -66,7 +65,7 @@ export class YoutubeStudioService {
         try {
             if (!this.resolveChannelId(req, res)) return;
             const { options, filePath } = req.body;
-            const studio = this.studioMap.get(req.body.channel_id)!;
+            const studio = this.studioManager.getStudio(req.body.channel_id);
             const result = await studio.fetchAndSaveSubscribersByContentPage(options, filePath);
             res.json(result);
         } catch (err) {
