@@ -1,5 +1,6 @@
 import { Page } from 'puppeteer';
 import { promises as fs } from 'fs';
+import { randomUUID } from 'crypto';
 import { StudioNavigator } from './StudioNavigator.js';
 
 interface ImageTag {
@@ -17,10 +18,13 @@ interface ImpressionPageOptions {
 export class YoutubeStudio {
     private navigator: StudioNavigator;
     private debug: boolean;
+    private screenshotsFolder: string;
 
     constructor(accountId: string, debug: boolean = false) {
         this.debug = debug;
         this.navigator = new StudioNavigator(accountId, debug);
+        this.screenshotsFolder = 'screenshots';
+        fs.mkdir(this.screenshotsFolder, { recursive: true }).catch(console.error);
     }
 
     private logDebug(message: string): void {
@@ -153,10 +157,29 @@ export class YoutubeStudio {
 
         const imgTags: ImageTag[] = await this.fetchImpressionContentImageTags();
         await this.saveHTMLToFile(JSON.stringify(imgTags, null, 2), filePath);
+        const savedScreenshot = await this.saveScreenshotToFile();
         await this.close();
 
         console.log(`Fetched and saved <img> tags from ${pageType.charAt(0).toUpperCase() + pageType.slice(1)} by Content page.`);
         return imgTags;
+    }
+    /**
+     * Takes a screenshot of the .yta-explore-table element and saves it to the screenshots folder.
+     * Returns the filename of the saved screenshot.
+     */
+    private async saveScreenshotToFile(): Promise<string> {
+        const selector = '.yta-explore-table';
+        const filename = `${this.screenshotsFolder}/${randomUUID()}.png`;
+
+        try {
+            const screenshotBuffer = await this.navigator.screenshotBySelector(selector);
+            await fs.writeFile(filename, screenshotBuffer);
+            this.logDebug(`Screenshot saved to ${filename}`);
+            return filename;
+        } catch (error) {
+            console.error(`Failed to capture screenshot of ${selector}:`, error);
+            throw error;
+        }
     }
 
     /**

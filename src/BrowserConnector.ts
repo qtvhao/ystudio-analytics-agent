@@ -27,9 +27,7 @@ export class BrowserConnector {
         try {
             if (this.autoLaunch && !this.browser) {
                 this.logDebug('Auto-launching browser...');
-                await new Promise(resolve => setTimeout(resolve, 3_000));
                 await this.launch();
-                await new Promise(resolve => setTimeout(resolve, 30_000));
             }
 
             this.logDebug(`Connecting to browser at ${browserURL}...`);
@@ -153,12 +151,24 @@ export class BrowserConnector {
         ];
 
         this.logDebug(`Launching Chrome at ${chromePath} with args: ${args.join(' ')}`);
-        return new Promise((resolve) => {
-            spawn(chromePath, args, {
-                detached: true,
-                stdio: 'ignore'
-            }).unref();
-            resolve();
-        });
+        spawn(chromePath, args, {
+            detached: true,
+            stdio: 'ignore'
+        }).unref();
+
+        for (let i = 0; i < 150; i++) {
+            try {
+                const response = await fetch('http://localhost:9222/json/version');
+                if (response.ok) {
+                    this.logDebug('Chrome remote debugging endpoint is responsive.');
+                    return;
+                }
+            } catch (error) {
+                this.logDebug(`Waiting for Chrome to respond... (${i + 1}/5)`);
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        throw new Error('[BrowserConnector] Failed to connect to Chrome remote debugging endpoint after 5 attempts.');
     }
 }

@@ -188,4 +188,22 @@ export class StudioNavigator {
         await this.connector.close();
         this.logDebug('Browser connection closed.');
     }
+    /**
+     * Takes a screenshot of the element matching the given CSS selector.
+     * Returns the screenshot as a Buffer.
+     */
+    public async screenshotBySelector(selector: string): Promise<Buffer> {
+        if (!this.page) {
+            throw new Error('Page is not initialized.');
+        }
+
+        const elementHandle = await this.page.$(selector);
+        if (!elementHandle) {
+            throw new Error(`No element found for selector: ${selector}`);
+        }
+
+        this.logDebug(`Taking screenshot of element: ${selector}`);
+        const screenshotBuffer = await elementHandle.screenshot({ type: 'png' }) as Buffer;
+        return screenshotBuffer;
+    }
 }
