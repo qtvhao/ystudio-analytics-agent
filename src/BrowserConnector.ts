@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
@@ -96,6 +96,29 @@ export class BrowserConnector {
             try {
                 this.logDebug('Disconnecting from browser...');
                 await this.browser.disconnect();
+
+                if (this.autoLaunch) {
+                    this.logDebug('Auto-launched browser: killing associated process...');
+                    const platform = os.platform();
+                    let cmd: string;
+
+                    if (platform === 'darwin') {
+                        cmd = "pkill -f 'Google Chrome.*--remote-debugging-port=9222'";
+                    } else if (platform === 'linux') {
+                        cmd = "pkill -f 'google-chrome.*--remote-debugging-port=9222'";
+                    } else {
+                        console.warn('[BrowserConnector] Unsupported platform for killing process.');
+                        return;
+                    }
+
+                    try {
+                        execSync(cmd);
+                        console.log('[BrowserConnector] Chrome process killed.');
+                    } catch (err) {
+                        console.error('[BrowserConnector] Failed to kill Chrome process:', err);
+                    }
+                }
+
                 console.log('[BrowserConnector] Disconnected from browser.');
             } catch (error) {
                 console.error('[BrowserConnector] Error while disconnecting:', error);

@@ -153,6 +153,7 @@ export class YoutubeStudio {
 
         const imgTags: ImageTag[] = await this.fetchImpressionContentImageTags();
         await this.saveHTMLToFile(JSON.stringify(imgTags, null, 2), filePath);
+        await this.close();
 
         console.log(`Fetched and saved <img> tags from ${pageType.charAt(0).toUpperCase() + pageType.slice(1)} by Content page.`);
         return imgTags;
