@@ -18,9 +18,9 @@ export class YoutubeStudio {
     private navigator: StudioNavigator;
     private debug: boolean;
 
-    constructor(debug: boolean = false) {
+    constructor(accountId: string, debug: boolean = false) {
         this.debug = debug;
-        this.navigator = new StudioNavigator(debug);
+        this.navigator = new StudioNavigator(accountId, debug);
     }
 
     private logDebug(message: string): void {
@@ -77,6 +77,7 @@ export class YoutubeStudio {
             }
         } catch (error) {
             console.error('Error during YoutubeStudio automation:', error);
+            throw error;
         } finally {
             this.logDebug('Finished YoutubeStudio automation.');
         }
@@ -141,6 +142,7 @@ export class YoutubeStudio {
         options: ImpressionPageOptions | undefined,
         filePath: string
     ): Promise<ImageTag[]> {
+        await this.start();
         if (pageType === 'impressions') {
             await this.navigateToImpressionsByContentPage(options);
         } else if (pageType === 'watchTime') {

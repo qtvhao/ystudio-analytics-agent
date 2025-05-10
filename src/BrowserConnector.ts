@@ -1,12 +1,20 @@
+import { spawn } from 'child_process';
+import path from 'path';
+import os from 'os';
+import fs from 'fs';
 import puppeteer, { Browser, Page } from 'puppeteer';
 
 export class BrowserConnector {
     private browser: Browser | null = null;
     private page: Page | null = null;
     private debug: boolean;
+    private dataDir: string;
+    private autoLaunch: boolean;
 
-    constructor(debug: boolean = false) {
+    constructor(debug: boolean = false, dataDir: string, autoLaunch: boolean = false) {
         this.debug = debug;
+        this.dataDir = dataDir;
+        this.autoLaunch = autoLaunch;
     }
 
     private logDebug(message: string): void {
@@ -17,6 +25,13 @@ export class BrowserConnector {
 
     public async connect(browserURL: string = 'http://localhost:9222'): Promise<Page> {
         try {
+            if (this.autoLaunch && !this.browser) {
+                this.logDebug('Auto-launching browser...');
+                await new Promise(resolve => setTimeout(resolve, 3_000));
+                await this.launch();
+                await new Promise(resolve => setTimeout(resolve, 30_000));
+            }
+
             this.logDebug(`Connecting to browser at ${browserURL}...`);
             this.browser = await puppeteer.connect({
                 browserURL,
@@ -86,5 +101,41 @@ export class BrowserConnector {
                 console.error('[BrowserConnector] Error while disconnecting:', error);
             }
         }
+    }
+
+    public async launch(): Promise<void> {
+        const dataDir = this.dataDir;
+
+        let chromePath: string;
+        const platform = os.platform();
+        if (platform === 'darwin') {
+            chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+        } else if (platform === 'linux') {
+            chromePath = '/usr/bin/google-chrome';
+        } else {
+            throw new Error(`[BrowserConnector] Unsupported platform: ${platform}`);
+        }
+
+        const args = [
+            '--remote-debugging-port=9222',
+            `--user-data-dir=${dataDir}`,
+            '--disable-dev-shm-usage',
+            '--disable-software-rasterizer',
+            '--disable-proxy-certificate-handler',
+            '--no-sandbox',
+            '--no-first-run',
+            '--disable-features=PrivacySandboxSettings4',
+            '--no-zygote',
+            '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15'
+        ];
+
+        this.logDebug(`Launching Chrome at ${chromePath} with args: ${args.join(' ')}`);
+        return new Promise((resolve) => {
+            spawn(chromePath, args, {
+                detached: true,
+                stdio: 'ignore'
+            }).unref();
+            resolve();
+        });
     }
 }

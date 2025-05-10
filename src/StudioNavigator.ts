@@ -1,6 +1,15 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { BrowserConnector } from './BrowserConnector.js';
 import { StudioUrlBuilder } from './StudioUrlBuilder.js';
 import { Page } from 'puppeteer';
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const BROWSER_INSTANCES_DIR = path.join(__dirname, 'browser-instances');
 
 type NavigationOptions = {
     timePeriod?: string;
@@ -16,9 +25,9 @@ export class StudioNavigator {
     private urlBuilder: StudioUrlBuilder;
     private channelId: string | null = null;
 
-    constructor(debug: boolean = false) {
+    constructor(accountId: string, debug: boolean) {
         this.debug = debug;
-        this.connector = new BrowserConnector(debug);
+        this.connector = new BrowserConnector(debug, path.join(BROWSER_INSTANCES_DIR, accountId), true);
         this.urlBuilder = new StudioUrlBuilder(debug);
     }
 
