@@ -68,9 +68,9 @@ export class YoutubeStudio {
             await this.navigator.setupUserAgent();
             await this.navigator.navigateToStudio();
 
-            const channelId = await this.navigator.fetchAndStoreChannelId();
 
-            if (channelId) {
+            if (this.getChannelId() === null) {
+                const channelId = await this.navigator.fetchAndStoreChannelId();
                 console.log(`Extracted and stored channelId: ${channelId}`);
             } else {
                 console.warn('channelId not found in the URL.');
@@ -198,5 +198,12 @@ export class YoutubeStudio {
      */
     public getChannelId(): string | null {
         return this.navigator.getChannelId();
+    }
+
+    /**
+     * Sets the channelId directly on the navigator.
+     */
+    public setChannelId(channelId: string): void {
+        this.navigator.setChannelId(channelId);
     }
 }

@@ -150,6 +150,14 @@ export class StudioNavigator {
     }
 
     /**
+     * Manually sets the channel ID.
+     */
+    public setChannelId(channelId: string): void {
+        this.channelId = channelId;
+        this.logDebug(`Manually set channelId: ${channelId}`);
+    }
+
+    /**
      * Attempts to extract a channel ID from a given URL.
      */
     private getChannelIdFromUrl(url: string): string | null {
