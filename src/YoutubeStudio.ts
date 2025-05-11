@@ -2,6 +2,7 @@ import { Page } from 'puppeteer';
 import { promises as fs } from 'fs';
 import { randomUUID } from 'crypto';
 import { StudioNavigator } from './StudioNavigator.js';
+import { VideoMetricsExtractor } from './VideoMetricsExtractor.js';
 
 interface ImageTag {
     alt: string;
@@ -109,28 +110,17 @@ export class YoutubeStudio {
     }
 
     /**
-     * Retrieves the <img> tags' alt and src attributes from the Impressions by Content page.
-     * Filters for <img> tags whose alt attribute starts with "Video thumbnail:".
+     * Fetches image tags and checks if their parent element contains a percentage string.
      */
-    public async fetchImpressionContentImageTags(): Promise<ImageTag[]> {
+    private async fetchVideoDetailsWithMetrics(): Promise<any[]> {
         const page: Page | null = this.navigator.getPage();
-
         if (!page) {
-            throw new Error('Page instance is null. Cannot fetch Impressions by Content page image tags.');
+            throw new Error('Page instance is null. Cannot fetch video details.');
         }
 
-        this.logDebug('Fetching <img> tags with alt attribute starting with "Video thumbnail:" from the Impressions by Content page...');
-
-        const imgTags: ImageTag[] = await page.$$eval('img', (imgs) =>
-            imgs
-                .filter((img) => img.hasAttribute('alt') && img.getAttribute('alt')?.startsWith('Video thumbnail:'))
-                .map((img) => ({
-                    alt: img.getAttribute('alt')?.replace('Video thumbnail: ', '') || '',
-                    src: img.getAttribute('src') || ''
-                }))
-        );
-
-        return imgTags;
+        this.logDebug('Fetching video details with metrics...');
+        const extractor = new VideoMetricsExtractor(page);
+        return await extractor.extract();
     }
 
     /**
@@ -155,31 +145,11 @@ export class YoutubeStudio {
             await this.navigateToSubscribersByContentPage(options);
         }
 
-        const imgTags: ImageTag[] = await this.fetchImpressionContentImageTags();
-        await this.saveHTMLToFile(JSON.stringify(imgTags, null, 2), filePath);
-        const savedScreenshot = await this.saveScreenshotToFile();
+        const videoDetailsWithMetrics: ImageTag[] = await this.fetchVideoDetailsWithMetrics();
         await this.close();
 
         console.log(`Fetched and saved <img> tags from ${pageType.charAt(0).toUpperCase() + pageType.slice(1)} by Content page.`);
-        return imgTags;
-    }
-    /**
-     * Takes a screenshot of the .yta-explore-table element and saves it to the screenshots folder.
-     * Returns the filename of the saved screenshot.
-     */
-    private async saveScreenshotToFile(): Promise<string> {
-        const selector = '.yta-explore-table';
-        const filename = `${this.screenshotsFolder}/${randomUUID()}.png`;
-
-        try {
-            const screenshotBuffer = await this.navigator.screenshotBySelector(selector);
-            await fs.writeFile(filename, screenshotBuffer);
-            this.logDebug(`Screenshot saved to ${filename}`);
-            return filename;
-        } catch (error) {
-            console.error(`Failed to capture screenshot of ${selector}:`, error);
-            throw error;
-        }
+        return videoDetailsWithMetrics;
     }
 
     /**
