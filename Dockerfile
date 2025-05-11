@@ -1,6 +1,6 @@
 FROM ghcr.io/qtvhao/chrome:main
 
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock tsconfig.json ./
 RUN yarn
 
 COPY . .
