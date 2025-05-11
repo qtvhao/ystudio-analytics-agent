@@ -2,7 +2,7 @@ import { spawn, execSync } from 'child_process';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Browser, Page } from 'puppeteer-core';
 
 export class BrowserConnector {
     private browser: Browser | null = null;

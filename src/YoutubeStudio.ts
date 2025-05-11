@@ -1,4 +1,4 @@
-import { Page } from 'puppeteer';
+import { Page } from 'puppeteer-core';
 import { promises as fs } from 'fs';
 import { StudioNavigator } from './StudioNavigator.js';
 import { VideoMetricsExtractor } from './VideoMetricsExtractor.js';

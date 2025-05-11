@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { BrowserConnector } from './BrowserConnector.js';
 import { StudioUrlBuilder } from './StudioUrlBuilder.js';
-import { Page } from 'puppeteer';
+import { Page } from 'puppeteer-core';
 
 
 const __filename = fileURLToPath(import.meta.url);
