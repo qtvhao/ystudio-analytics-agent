@@ -48,14 +48,29 @@ export class VideoMetricsExtractor {
                     htmlElement.querySelectorAll('.value.debug-metric-value').forEach((el) => {
                         metrics.push((el.textContent || '').trim());
                     });
+                    // 
+                    const elements = document.querySelectorAll('div.debug-metric-title');
+                    // @ts-ignore
+                    const metricsHeading = [];
 
+                    elements.forEach(el => {
+                        const text = el.textContent?.trim();
+                        if (text) {
+                            metricsHeading.push(text);
+                        }
+                    });
+
+                    const metricPairs: { [key: string]: string } = {};
+                    for (let i = Math.min(metrics.length, metricsHeading.length) - 1; i >= 0; i--) {
+                        // @ts-ignore
+                        metricPairs[metricsHeading[i]] = metrics[i];
+                    }
 
                     // In kết quả
                     console.log('Tiêu đề:', title);
                     console.log('Thumbnail:', thumbnailUrl);
                     console.log('Thời lượng:', duration);
-                    // @ts-ignore
-                    console.log('Metrics:', metrics);
+                    console.log('Metrics:', metricPairs);
                 })
         });
     }
