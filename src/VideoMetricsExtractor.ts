@@ -46,7 +46,7 @@ export class VideoMetricsExtractor {
                     // @ts-ignore
                     const metrics = [];
                     htmlElement.querySelectorAll('.value.debug-metric-value').forEach((el) => {
-                        metrics.push((el.textContent || '').trim());
+                        metrics.unshift((el.textContent || '').trim());
                     });
                     // 
                     const elements = document.querySelectorAll('div.debug-metric-title');
@@ -56,21 +56,22 @@ export class VideoMetricsExtractor {
                     elements.forEach(el => {
                         const text = el.textContent?.trim();
                         if (text) {
-                            metricsHeading.push(text);
+                            metricsHeading.unshift(text);
                         }
                     });
 
                     const metricPairs: { [key: string]: string } = {};
-                    for (let i = Math.min(metrics.length, metricsHeading.length) - 1; i >= 0; i--) {
+                    for (let i = 0; i < Math.min(metrics.length, metricsHeading.length); i++) {
                         // @ts-ignore
                         metricPairs[metricsHeading[i]] = metrics[i];
                     }
 
-                    // In kết quả
-                    console.log('Tiêu đề:', title);
-                    console.log('Thumbnail:', thumbnailUrl);
-                    console.log('Thời lượng:', duration);
-                    console.log('Metrics:', metricPairs);
+                    return {
+                        title,
+                        thumbnailUrl,
+                        duration,
+                        metrics: metricPairs
+                    };
                 })
         });
     }

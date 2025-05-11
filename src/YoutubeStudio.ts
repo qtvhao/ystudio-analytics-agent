@@ -1,6 +1,5 @@
 import { Page } from 'puppeteer';
 import { promises as fs } from 'fs';
-import { randomUUID } from 'crypto';
 import { StudioNavigator } from './StudioNavigator.js';
 import { VideoMetricsExtractor } from './VideoMetricsExtractor.js';
 
